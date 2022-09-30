@@ -47,13 +47,15 @@ int GetAliveNeighbors(int **grid, int line, int column)
     int alive = 0;
     int j;
 
-    int above = line > 0 ? line - 1 : N - 1;
+    // obter índice de linha acima
+    int above = line == 0 ? N - 1 : line - 1;
+
     // checar linha de cima
     for (j = column - 1; j <= column + 1; j++)
     {
         // checa borda infinita
         int current = j % N;
-        if (j < 0)
+        if (current < 0)
             current = N - 1;
 
         if (grid[above][current] == 1)
@@ -68,7 +70,7 @@ int GetAliveNeighbors(int **grid, int line, int column)
     {
         // checa borda infinita
         int current = j % N;
-        if (j < 0)
+        if (current < 0)
             current = N - 1;
 
         if (grid[below][current] == 1)
@@ -88,31 +90,27 @@ int GetAliveNeighbors(int **grid, int line, int column)
     return alive;
 }
 
-void UpdateCellState(int **currentGrid, int **newGrid, int line, int column)
+int GetNewState(int **grid, int line, int column)
 {
-    int neighbors = GetAliveNeighbors(currentGrid, line, column);
+    int neighbors = GetAliveNeighbors(grid, line, column);
 
-    // ser a célula está morta
-    if (currentGrid[line][column] == 0)
+    // A célula está viva?
+    if (grid[line][column] == 1)
     {
-        if (neighbors == 3)
-        {
-            newGrid[line][column] = 1;
-            return;
-        }
-
-        newGrid[line][column] = 0;
-    }
-    else // a célula está viva
-    {
+        // mantém-se viva
         if (neighbors == 2 || neighbors == 3)
-        {
-            newGrid[line][column] = 1;
-            return;
-        }
+            return 1;
 
-        newGrid[line][column] = 0;
+        // deve morrer
+        return 0;
     }
+
+    // célula está morta
+    // tem vizinhos suficientes para viver?
+    if (neighbors == 3)
+        return 1;
+
+    return 0;
 }
 
 void ShowGeneration(int **grid, int currentGeneration)
@@ -152,15 +150,16 @@ void PlayGameOfLife(int **gridA, int **gridB, int iterations)
     int i, j, k;
     for (k = 0; k < iterations; k++)
     {
-        ShowGeneration(GetCurrentGrid(gridA, gridB, k), k);
+        int **nextGrid = GetNextGrid(gridA, gridB, k);
+        int **currentGrid = GetCurrentGrid(gridA, gridB, k);
+
+        ShowGeneration(currentGrid, k);
 
         for (i = 0; i < N; i++)
         {
             for (j = 0; j < N; j++)
             {
-                UpdateCellState(GetCurrentGrid(gridA, gridB, k),
-                                GetNextGrid(gridA, gridB, k),
-                                i, j);
+                nextGrid[i][j] = GetNewState(currentGrid, i, j);
             }
         }
     }
