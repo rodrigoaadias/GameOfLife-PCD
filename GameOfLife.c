@@ -47,49 +47,43 @@ int GetAliveNeighbors(int **grid, int line, int column)
     int alive = 0;
     int j;
 
-    // tem linha acima?
-    if (line > 0)
+    int above = line > 0 ? line - 1 : N - 1;
+    // checar linha de cima
+    for (j = column - 1; j <= column + 1; j++)
     {
-        // checar linha de cima
-        for (j = column - 1; j <= column + 1; j++)
-        {
-            // evita acessar item que não existe
-            if (j < 0 || j >= N)
-                continue;
+        // checa borda infinita
+        int current = j % N;
+        if (j < 0)
+            current = N - 1;
 
-            if (grid[line - 1][j] == 1)
-                alive++;
-        }
+        if (grid[above][current] == 1)
+            alive++;
     }
 
-    // tem linha abaixo?
-    if (line < N - 1)
-    {
-        // checar linha de baixo
-        for (j = column - 1; j <= column + 1; j++)
-        {
-            // evita acessar item que não existe
-            if (j < 0 || j >= N)
-                continue;
+    // obter linha abaixo
+    int below = (line + 1) % N;
 
-            if (grid[line + 1][j] == 1)
-                alive++;
-        }
+    // checar linha de baixo
+    for (j = column - 1; j <= column + 1; j++)
+    {
+        // checa borda infinita
+        int current = j % N;
+        if (j < 0)
+            current = N - 1;
+
+        if (grid[below][current] == 1)
+            alive++;
     }
 
     // checar esquerda
-    if (column > 0)
-    {
-        if (grid[line][column - 1] == 1)
-            alive++;
-    }
+    int left = column > 0 ? column - 1 : N - 1;
+    if (grid[line][left] == 1)
+        alive++;
 
     // checar direita
-    if (column < N - 1)
-    {
-        if (grid[line][column + 1] == 1)
-            alive++;
-    }
+    int right = (column + 1) % N;
+    if (grid[line][right] == 1)
+        alive++;
 
     return alive;
 }
@@ -156,8 +150,6 @@ int **GetNextGrid(int **gridA, int **gridB, int iteration)
 void PlayGameOfLife(int **gridA, int **gridB, int iterations)
 {
     int i, j, k;
-    int **grid;
-
     for (k = 0; k < iterations; k++)
     {
         ShowGeneration(GetCurrentGrid(gridA, gridB, k), k);
