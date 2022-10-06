@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
 
 #define N 2048
+#define N_THREADS 4
 
 void FillGlider(int **grid)
 {
@@ -120,7 +122,7 @@ int GetNewState(int **grid, int line, int column)
     return 0;
 }
 
-void ShowGeneration(int **grid, int currentGeneration)
+int GetSurvivors(int **grid)
 {
     int alive = 0;
     int i, j;
@@ -133,7 +135,12 @@ void ShowGeneration(int **grid, int currentGeneration)
         }
     }
 
-    printf("Geração %d: %d\n", currentGeneration, alive);
+    return alive;
+}
+
+void ShowGeneration(int **grid, int currentGeneration)
+{
+    printf("Geração %d: %d\n", currentGeneration, GetSurvivors(grid));
 }
 
 int **GetCurrentGrid(int **gridA, int **gridB, int iteration)
@@ -160,8 +167,10 @@ void PlayGameOfLife(int **gridA, int **gridB, int iterations)
         int **nextGrid = GetNextGrid(gridA, gridB, k);
         int **currentGrid = GetCurrentGrid(gridA, gridB, k);
 
-        ShowGeneration(currentGrid, k);
+        // ShowGeneration(currentGrid, k);
 
+#pragma omp parallel default(none) shared(nextGrid, currentGrid) private(i, j) num_threads(N_THREADS)
+#pragma omp parallel for
         for (i = 0; i < N; i++)
         {
             for (j = 0; j < N; j++)
@@ -177,6 +186,8 @@ int main()
     int **gridA, **gridB;
     gridA = (void *)malloc(N * sizeof(int));
     gridB = (void *)malloc(N * sizeof(int));
+
+    double start, end;
 
     int i = 0, j = 0;
     for (i = 0; i < N; i++)
@@ -194,9 +205,14 @@ int main()
     FillGlider(gridA);
     FillRPentonimo(gridA);
 
-    PlayGameOfLife(gridA, gridB, 2000);
+    printf("Condição inicial: %d\n", GetSurvivors(gridA));
 
-    ShowGeneration(GetCurrentGrid(gridA, gridB, 2000), 2000);
+    start = omp_get_wtime();
+    PlayGameOfLife(gridA, gridB, 2001);
+    end = omp_get_wtime();
+
+    printf("Última geração (2000 iterações): %d\n", GetSurvivors(gridB));
+    printf("Tempo execução: %f\n", end - start);
 
     return 0;
 }

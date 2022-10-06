@@ -120,7 +120,7 @@ int GetNewState(int **grid, int line, int column)
     return 0;
 }
 
-void ShowGeneration(int **grid, int currentGeneration)
+int GetSurvivors(int **grid)
 {
     int alive = 0;
     int i, j;
@@ -133,7 +133,12 @@ void ShowGeneration(int **grid, int currentGeneration)
         }
     }
 
-    printf("Geração %d: %d\n", currentGeneration, alive);
+    return alive;
+}
+
+void ShowGeneration(int **grid, int currentGeneration)
+{
+    printf("Geração %d: %d\n", currentGeneration, GetSurvivors(grid));
 }
 
 int **GetCurrentGrid(int **gridA, int **gridB, int iteration)
