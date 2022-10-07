@@ -40,16 +40,17 @@ void FillRPentonimo(int **grid)
 void PrintGrid(int **grid)
 {
     int i, j;
-    for (i = 0; i < N; i++)
+    for (i = 0; i < 50; i++)
     {
-        for (j = 0; j < N; j++)
+        for (j = 0; j < 50; j++)
         {
-            char c = grid[i][j] == 1 ? '*' : ' ';
-            printf("[%c]", c);
+            char c = grid[i][j] == 1 ? '*' : '.';
+            printf("%c", c);
         }
 
         printf("\n");
     }
+    printf("\n\n\n");
 }
 
 int GetAliveNeighbors(int **grid, int line, int column)
@@ -197,6 +198,9 @@ void PlayGameOfLife(int **gridA, int **gridB, int iterations)
         int **nextGrid = GetNextGrid(gridA, gridB, k);
         int **currentGrid = GetCurrentGrid(gridA, gridB, k);
 
+        if (k < 5)
+            PrintGrid(currentGrid);
+
         for (i = 0; i < N_THREADS; i++)
         {
             datas[i].currentGrid = currentGrid;
@@ -238,6 +242,8 @@ int main()
     FillGlider(gridA);
     FillRPentonimo(gridA);
 
+    printf("*** Game of Life (OPEN MP)\n");
+    printf("Numero de threads: %d\n\n", N_THREADS);
     printf("Condição inicial: %d\n", GetSurvivors(gridA));
 
     gettimeofday(&start, NULL);
@@ -248,7 +254,6 @@ int main()
 
     printf("Última geração (2000 iterações): %d\n", GetSurvivors(gridB));
     printf("Tempo execução: %lf ms\n", time_ms);
-    printf("Numero de threads: %d\n", N_THREADS);
 
     pthread_exit(NULL);
 

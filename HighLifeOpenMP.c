@@ -32,16 +32,17 @@ void FillRPentonimo(int **grid)
 void PrintGrid(int **grid)
 {
     int i, j;
-    for (i = 0; i < N; i++)
+    for (i = 0; i < 50; i++)
     {
-        for (j = 0; j < N; j++)
+        for (j = 0; j < 50; j++)
         {
-            char c = grid[i][j] == 1 ? '*' : ' ';
-            printf("[%c]", c);
+            char c = grid[i][j] == 1 ? '*' : '.';
+            printf("%c", c);
         }
 
         printf("\n");
     }
+    printf("\n\n\n");
 }
 
 int GetAliveNeighbors(int **grid, int line, int column)
@@ -169,7 +170,8 @@ void PlayGameOfLife(int **gridA, int **gridB, int iterations)
         int **nextGrid = GetNextGrid(gridA, gridB, k);
         int **currentGrid = GetCurrentGrid(gridA, gridB, k);
 
-        // ShowGeneration(currentGrid, k);
+        if (k < 5)
+            PrintGrid(currentGrid);
 
 #pragma omp parallel default(none) shared(nextGrid, currentGrid) private(i, j, th_id) num_threads(N_THREADS)
         {
@@ -209,6 +211,8 @@ int main()
     FillGlider(gridA);
     FillRPentonimo(gridA);
 
+    printf("*** High Life (OPEN MP)\n");
+    printf("Numero de threads: %d\n\n", N_THREADS);
     printf("Condição inicial: %d\n", GetSurvivors(gridA));
 
     start = omp_get_wtime();
@@ -217,7 +221,6 @@ int main()
 
     printf("Última geração (2000 iterações): %d\n", GetSurvivors(gridB));
     printf("Tempo execução: %f\n", end - start);
-    printf("Numero de threads: %d\n", N_THREADS);
 
     return 0;
 }
