@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+//#include <omp.h>
 
 #define N 50
 
@@ -125,7 +126,7 @@ int GetNewState(int **grid, int line, int column)
     return 0;
 }
 
-void ShowGeneration(int **grid, int currentGeneration)
+int GetSurvivors(int **grid)
 {
     int alive = 0;
     int i, j;
@@ -138,7 +139,12 @@ void ShowGeneration(int **grid, int currentGeneration)
         }
     }
 
-    printf("Geração %d: %d\n", currentGeneration, alive);
+    return alive;
+}
+
+void ShowGeneration(int **grid, int currentGeneration)
+{
+    printf("Geração %d: %d\n", currentGeneration, GetSurvivors(grid));
 }
 
 int **GetCurrentGrid(int **gridA, int **gridB, int iteration)
@@ -221,7 +227,7 @@ void PlayGameOfLife(int **gridA, int **gridB, int iterations)
         strutura_1.N_grid = GetNextGrid(gridA, gridB, k);
         strutura_1.inicio = 0;
 
-        ShowGeneration(strutura_1.C_grid, k);
+        // ShowGeneration(strutura_1.C_grid, k);
 
         strutura_2.C_grid = strutura_1.C_grid;
         strutura_2.N_grid = strutura_1.N_grid;
@@ -287,6 +293,8 @@ int main()
     gridA = (void *)malloc(N * sizeof(int));
     gridB = (void *)malloc(N * sizeof(int));
 
+    double start, end;
+
     int i = 0, j = 0;
     for (i = 0; i < N; i++)
     {
@@ -303,9 +311,14 @@ int main()
     FillGlider(gridA);
     FillRPentonimo(gridA);
 
-    PlayGameOfLife(gridA, gridB, 2000);
+    printf("Condição inicial: %d\n", GetSurvivors(gridA));
 
-    ShowGeneration(GetCurrentGrid(gridA, gridB, 2000), 2000);
+    // start = omp_get_wtime();
+    PlayGameOfLife(gridA, gridB, 2001);
+    // end = omp_get_wtime();
+
+    printf("Última geração (2000 iterações): %d\n", GetSurvivors(gridB));
+    printf("Tempo execução: %f\n", end - start);
 
     return 0;
 }

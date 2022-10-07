@@ -3,7 +3,7 @@
 #include <omp.h>
 
 #define N 2048
-#define N_THREADS 4
+#define N_THREADS 12
 
 void FillGlider(int **grid)
 {
@@ -162,6 +162,8 @@ int **GetNextGrid(int **gridA, int **gridB, int iteration)
 void PlayGameOfLife(int **gridA, int **gridB, int iterations)
 {
     int i, j, k;
+    int th_id;
+
     for (k = 0; k < iterations; k++)
     {
         int **nextGrid = GetNextGrid(gridA, gridB, k);
@@ -169,13 +171,15 @@ void PlayGameOfLife(int **gridA, int **gridB, int iterations)
 
         // ShowGeneration(currentGrid, k);
 
-#pragma omp parallel default(none) shared(nextGrid, currentGrid) private(i, j) num_threads(N_THREADS)
-#pragma omp parallel for
-        for (i = 0; i < N; i++)
+#pragma omp parallel default(none) shared(nextGrid, currentGrid) private(i, j, th_id) num_threads(N_THREADS)
         {
-            for (j = 0; j < N; j++)
+#pragma omp for
+            for (i = 0; i < N; i++)
             {
-                nextGrid[i][j] = GetNewState(currentGrid, i, j);
+                for (j = 0; j < N; j++)
+                {
+                    nextGrid[i][j] = GetNewState(currentGrid, i, j);
+                }
             }
         }
     }
@@ -213,6 +217,7 @@ int main()
 
     printf("Última geração (2000 iterações): %d\n", GetSurvivors(gridB));
     printf("Tempo execução: %f\n", end - start);
+    printf("Numero de threads: %d\n", N_THREADS);
 
     return 0;
 }

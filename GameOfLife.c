@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include <sys/timeb.h>
 
 #define N 2048
 
@@ -183,6 +185,9 @@ int main()
     gridA = (void *)malloc(N * sizeof(int));
     gridB = (void *)malloc(N * sizeof(int));
 
+    struct timeval start, end;
+    long long time_ms;
+
     int i = 0, j = 0;
     for (i = 0; i < N; i++)
     {
@@ -199,9 +204,16 @@ int main()
     FillGlider(gridA);
     FillRPentonimo(gridA);
 
-    PlayGameOfLife(gridA, gridB, 2000);
+    printf("Condição inicial: %d\n", GetSurvivors(gridA));
 
-    ShowGeneration(GetCurrentGrid(gridA, gridB, 2000), 2000);
+    gettimeofday(&start, NULL);
+    PlayGameOfLife(gridA, gridB, 2000);
+    gettimeofday(&end, NULL);
+
+    time_ms = (int)(1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000);
+
+    printf("Última geração (2000 iterações): %d\n", GetSurvivors(gridB));
+    printf("Tempo execução: %f\n", time_ms);
 
     return 0;
 }

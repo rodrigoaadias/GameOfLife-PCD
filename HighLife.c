@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define N 50
+#define N 2048
 
 void FillGlider(int **grid)
 {
@@ -113,7 +113,7 @@ int GetNewState(int **grid, int line, int column)
     return 0;
 }
 
-void ShowGeneration(int **grid, int currentGeneration)
+int GetSurvivors(int **grid)
 {
     int alive = 0;
     int i, j;
@@ -126,7 +126,12 @@ void ShowGeneration(int **grid, int currentGeneration)
         }
     }
 
-    printf("Geração %d: %d\n", currentGeneration, alive);
+    return alive;
+}
+
+void ShowGeneration(int **grid, int currentGeneration)
+{
+    printf("Geração %d: %d\n", currentGeneration, GetSurvivors(grid));
 }
 
 int **GetCurrentGrid(int **gridA, int **gridB, int iteration)
@@ -153,7 +158,7 @@ void PlayGameOfLife(int **gridA, int **gridB, int iterations)
         int **nextGrid = GetNextGrid(gridA, gridB, k);
         int **currentGrid = GetCurrentGrid(gridA, gridB, k);
 
-        ShowGeneration(currentGrid, k);
+        // ShowGeneration(currentGrid, k);
 
         for (i = 0; i < N; i++)
         {

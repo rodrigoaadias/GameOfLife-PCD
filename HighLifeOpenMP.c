@@ -3,7 +3,7 @@
 #include <omp.h>
 
 #define N 2048
-#define N_THREADS 12
+#define N_THREADS 6
 
 void FillGlider(int **grid)
 {
@@ -47,7 +47,8 @@ void PrintGrid(int **grid)
 int GetAliveNeighbors(int **grid, int line, int column)
 {
     int alive = 0;
-    int j;
+    int j = 0;
+    int current = 0;
 
     // obter índice de linha acima
     int above = line == 0 ? N - 1 : line - 1;
@@ -56,9 +57,12 @@ int GetAliveNeighbors(int **grid, int line, int column)
     for (j = column - 1; j <= column + 1; j++)
     {
         // checa borda infinita
-        int current = j % N;
+        current = j;
         if (current < 0)
             current = N - 1;
+
+        if (current > N - 1)
+            current = 0;
 
         if (grid[above][current] == 1)
             alive++;
@@ -71,9 +75,12 @@ int GetAliveNeighbors(int **grid, int line, int column)
     for (j = column - 1; j <= column + 1; j++)
     {
         // checa borda infinita
-        int current = j % N;
+        current = j;
         if (current < 0)
             current = N - 1;
+
+        if (current > N - 1)
+            current = 0;
 
         if (grid[below][current] == 1)
             alive++;
@@ -85,7 +92,7 @@ int GetAliveNeighbors(int **grid, int line, int column)
         alive++;
 
     // checar direita
-    int right = (column + 1) % N;
+    int right = column < N - 1 ? column + 1 : 0;
     if (grid[line][right] == 1)
         alive++;
 
@@ -155,23 +162,24 @@ int **GetNextGrid(int **gridA, int **gridB, int iteration)
 void PlayGameOfLife(int **gridA, int **gridB, int iterations)
 {
     int i, j, k;
-    int **nextGrid;
-    int **currentGrid;
+    int th_id;
 
     for (k = 0; k < iterations; k++)
     {
-        nextGrid = GetNextGrid(gridA, gridB, k);
-        currentGrid = GetCurrentGrid(gridA, gridB, k);
+        int **nextGrid = GetNextGrid(gridA, gridB, k);
+        int **currentGrid = GetCurrentGrid(gridA, gridB, k);
 
         // ShowGeneration(currentGrid, k);
 
-#pragma omp parallel default(none) shared(nextGrid, currentGrid) private(i, j) num_threads(N_THREADS)
-#pragma omp parallel for
-        for (i = 0; i < N; i++)
+#pragma omp parallel default(none) shared(nextGrid, currentGrid) private(i, j, th_id) num_threads(N_THREADS)
         {
-            for (j = 0; j < N; j++)
+#pragma omp for
+            for (i = 0; i < N; i++)
             {
-                nextGrid[i][j] = GetNewState(currentGrid, i, j);
+                for (j = 0; j < N; j++)
+                {
+                    nextGrid[i][j] = GetNewState(currentGrid, i, j);
+                }
             }
         }
     }
@@ -183,8 +191,7 @@ int main()
     gridA = (void *)malloc(N * sizeof(int));
     gridB = (void *)malloc(N * sizeof(int));
 
-    double start;
-    double end;
+    double start, end;
 
     int i = 0, j = 0;
     for (i = 0; i < N; i++)
@@ -202,17 +209,15 @@ int main()
     FillGlider(gridA);
     FillRPentonimo(gridA);
 
+    printf("Condição inicial: %d\n", GetSurvivors(gridA));
+
     start = omp_get_wtime();
-
-    printf("Starting High Life with %d threads\n", N_THREADS);
-
-    PlayGameOfLife(gridA, gridB, 2000);
-    ShowGeneration(GetCurrentGrid(gridA, gridB, 2000), 2000);
-
+    PlayGameOfLife(gridA, gridB, 2001);
     end = omp_get_wtime();
 
-    printf("Work took %f seconds using %d threads\n", end - start, N_THREADS);
-    system("pause");
+    printf("Última geração (2000 iterações): %d\n", GetSurvivors(gridB));
+    printf("Tempo execução: %f\n", end - start);
+    printf("Numero de threads: %d\n", N_THREADS);
 
     return 0;
 }
