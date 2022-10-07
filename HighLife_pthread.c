@@ -124,7 +124,7 @@ int GetNewState(int **grid, int line, int column)
 
     // célula está morta
     // tem vizinhos suficientes para viver?
-    if (neighbors == 3)
+    if (neighbors == 3 || neighbors == 6)
         return 1;
 
     return 0;

@@ -188,8 +188,8 @@ void PlayGameOfLife(int **gridA, int **gridB, int iterations)
 int main()
 {
     int **gridA, **gridB;
-    gridA = (void *)malloc(N * sizeof(int));
-    gridB = (void *)malloc(N * sizeof(int));
+    gridA = (int **)malloc(N * sizeof(int *));
+    gridB = (int **)malloc(N * sizeof(int *));
 
     double start, end;
 

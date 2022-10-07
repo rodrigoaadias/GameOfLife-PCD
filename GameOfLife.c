@@ -9,6 +9,7 @@ void FillGlider(int **grid)
     // GLIDER
     int lin = 1, col = 1;
 
+
     grid[lin][col + 1] = 1;
     grid[lin + 1][col + 2] = 1;
     grid[lin + 2][col] = 1;
@@ -166,7 +167,7 @@ void PlayGameOfLife(int **gridA, int **gridB, int iterations)
         int **nextGrid = GetNextGrid(gridA, gridB, k);
         int **currentGrid = GetCurrentGrid(gridA, gridB, k);
 
-        ShowGeneration(currentGrid, k);
+        //ShowGeneration(currentGrid, k);
 
         for (i = 0; i < N; i++)
         {
@@ -181,11 +182,11 @@ void PlayGameOfLife(int **gridA, int **gridB, int iterations)
 int main()
 {
     int **gridA, **gridB;
-    gridA = (void *)malloc(N * sizeof(int));
-    gridB = (void *)malloc(N * sizeof(int));
+    gridA = (int **)malloc(N * sizeof(int*));
+    gridB = (int **)malloc(N * sizeof(int*));
 
     struct timeval start, end;
-    long long time_ms;
+    double time_ms;
 
     int i = 0, j = 0;
     for (i = 0; i < N; i++)
@@ -212,7 +213,7 @@ int main()
     time_ms = (int)(1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000);
 
     printf("Última geração (2000 iterações): %d\n", GetSurvivors(gridB));
-    printf("Tempo execução: %f\n", time_ms);
+    printf("Tempo execução: %lf\n", time_ms);
 
     return 0;
 }
