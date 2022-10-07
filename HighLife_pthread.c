@@ -242,7 +242,7 @@ int main()
     FillGlider(gridA);
     FillRPentonimo(gridA);
 
-    printf("*** High Life\n");
+    printf("*** High Life (pthread)\n");
     printf("Numero de threads: %d\n\n", N_THREADS);
     printf("Condição inicial: %d\n", GetSurvivors(gridA));
 
@@ -253,7 +253,7 @@ int main()
     time_ms = (int)(1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000);
 
     printf("Última geração (2000 iterações): %d\n", GetSurvivors(gridB));
-    printf("Tempo execução: %lf ms\n", time_ms);
+    printf("Tempo execução: %lf ms\n", time_ms / 1000);
 
     pthread_exit(NULL);
 
