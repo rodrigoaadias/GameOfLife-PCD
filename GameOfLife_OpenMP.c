@@ -1,3 +1,8 @@
+/// Nome dos integrantes do grupo
+// Artur Auresco Damasio
+// Issac Santos Romão
+// Rodrigo Augusto Alves Dias
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
