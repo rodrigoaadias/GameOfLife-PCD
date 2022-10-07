@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-//#include <omp.h>
+#include <sys/time.h>
 
 #define N 50
 
@@ -293,7 +293,8 @@ int main()
     gridA = (void *)malloc(N * sizeof(int));
     gridB = (void *)malloc(N * sizeof(int));
 
-    double start, end;
+    struct timeval start, end;
+    long long time_ms;
 
     int i = 0, j = 0;
     for (i = 0; i < N; i++)
@@ -313,12 +314,14 @@ int main()
 
     printf("Condição inicial: %d\n", GetSurvivors(gridA));
 
-    // start = omp_get_wtime();
-    PlayGameOfLife(gridA, gridB, 2001);
-    // end = omp_get_wtime();
+    gettimeofday(&start, NULL);
+    PlayGameOfLife(gridA, gridB, 2000);
+    gettimeofday(&end, NULL);
+
+    time_ms = (int)(1000 * (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000);
 
     printf("Última geração (2000 iterações): %d\n", GetSurvivors(gridB));
-    printf("Tempo execução: %f\n", end - start);
+    printf("Tempo execução: %f\n", time_ms);
 
     return 0;
 }

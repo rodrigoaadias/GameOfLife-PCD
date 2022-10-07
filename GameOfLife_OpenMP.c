@@ -3,7 +3,7 @@
 #include <omp.h>
 
 #define N 2048
-#define N_THREADS 12
+#define N_THREADS 8
 
 void FillGlider(int **grid)
 {
