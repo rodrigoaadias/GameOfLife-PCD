@@ -1,8 +1,3 @@
-/// Nome dos integrantes do grupo
-// Artur Auresco Damasio
-// Issac Santos Romão
-// Rodrigo Augusto Alves Dias
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -194,19 +189,23 @@ void *Thread_ProccessGeneration(void *arg)
 void PlayGameOfLife(int **gridA, int **gridB, int iterations)
 {
     int i, k;
+    char *thread_num = getenv("OMP_NUM_THREADS");
+    int th_num = (thread_num) ? atoi(thread_num) : N_THREADS;
 
-    pthread_t threads[N_THREADS];
-    TData datas[N_THREADS];
+    printf("Numero de threads: %d\n\n", th_num);
+
+    pthread_t threads[th_num];
+    TData datas[th_num];
 
     for (k = 0; k < iterations; k++)
     {
         int **nextGrid = GetNextGrid(gridA, gridB, k);
         int **currentGrid = GetCurrentGrid(gridA, gridB, k);
 
-        if (k < 5)
-            PrintGrid(currentGrid);
+        /*if (k < 5)
+            PrintGrid(currentGrid);*/
 
-        for (i = 0; i < N_THREADS; i++)
+        for (i = 0; i < th_num; i++)
         {
             datas[i].currentGrid = currentGrid;
             datas[i].newGrid = nextGrid;
@@ -214,7 +213,7 @@ void PlayGameOfLife(int **gridA, int **gridB, int iterations)
             pthread_create(&threads[i], NULL, Thread_ProccessGeneration, (void *)&datas[i]);
         }
 
-        for (i = 0; i < N_THREADS; i++)
+        for (i = 0; i < th_num; i++)
         {
             pthread_join(threads[i], NULL);
         }
@@ -248,7 +247,6 @@ int main()
     FillRPentonimo(gridA);
 
     printf("*** High Life (pthread)\n");
-    printf("Numero de threads: %d\n\n", N_THREADS);
     printf("Condição inicial: %d\n", GetSurvivors(gridA));
 
     gettimeofday(&start, NULL);

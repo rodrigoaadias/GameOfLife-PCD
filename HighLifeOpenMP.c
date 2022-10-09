@@ -8,7 +8,7 @@
 #include <omp.h>
 
 #define N 2048
-#define N_THREADS 6
+#define N_THREADS 8
 
 void FillGlider(int **grid)
 {
@@ -169,17 +169,25 @@ void PlayGameOfLife(int **gridA, int **gridB, int iterations)
 {
     int i, j, k;
     int th_id;
+    int print_thread_num = 0;
 
     for (k = 0; k < iterations; k++)
     {
         int **nextGrid = GetNextGrid(gridA, gridB, k);
         int **currentGrid = GetCurrentGrid(gridA, gridB, k);
 
-        if (k < 5)
-            PrintGrid(currentGrid);
+        /*if (k < 5)
+            PrintGrid(currentGrid);*/
 
-#pragma omp parallel default(none) shared(nextGrid, currentGrid) private(i, j, th_id) num_threads(N_THREADS)
+#pragma omp parallel default(none) shared(nextGrid, currentGrid, print_thread_num) private(i, j, th_id)
         {
+            th_id = omp_get_thread_num();
+            if (th_id == 0 && print_thread_num == 0)
+            {
+                printf("Numero de threads: %d\n\n", omp_get_num_threads());
+                print_thread_num = 1;
+            }
+
 #pragma omp for
             for (i = 0; i < N; i++)
             {
@@ -216,8 +224,7 @@ int main()
     FillGlider(gridA);
     FillRPentonimo(gridA);
 
-    printf("*** High Life (OPEN MP)\n");
-    printf("Numero de threads: %d\n\n", N_THREADS);
+    printf("*** Game of Life (OPEN MP)\n");
     printf("Condição inicial: %d\n", GetSurvivors(gridA));
 
     start = omp_get_wtime();
